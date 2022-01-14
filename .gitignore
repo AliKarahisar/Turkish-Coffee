@@ -1,0 +1,20 @@
+
+.idea/vcs.xml
+src/.DS_Store
+.project
+out/.DS_Store
+out/artifacts/.DS_Store
+out/artifacts/Turkish_Coffee_jar/.DS_Store
+out/artifacts/Turkish_Coffee_jar/Turkish Coffee.jar
+out/production/.DS_Store
+out/production/Turkish Coffee/assets/turkish.png
+out/production/Turkish Coffee/META-INF/MANIFEST.MF
+out/production/Turkish Coffee/TurkishCoffee$1.class
+out/production/Turkish Coffee/TurkishCoffee.class
+.idea/modules.xml
+.idea/misc.xml
+.idea/libraries/flatlaf_1_6_4.xml
+.idea/compiler.xml
+.idea/artifacts/Turkish_Coffee_jar.xml
+.idea/artifacts/Turkish_Coffee.xml
+.DS_Store
