@@ -76,7 +76,7 @@ public class TurkishCoffee {
                     "font-size:" + font.getSize() + "pt;";
 
             JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
-                    + "Coded by, <a href=\"https://alikarahisar.com/\">Ali Karahisar</a>"
+                    + "<strong>Turkish Coffee v0.1</strong><br/>Coded by, <a href=\"https://alikarahisar.com/\">Ali Karahisar</a>"
                     + "</body></html>");
 
             ep.addHyperlinkListener(e1 -> {
