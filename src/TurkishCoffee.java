@@ -93,7 +93,6 @@ public class TurkishCoffee {
     public static void createGui() throws IOException {
 
         BufferedImage myPicture = ImageIO.read(Objects.requireNonNull(TurkishCoffee.class.getResource(imagePath)));
-        Icon appIcon = new ImageIcon(imagePath);
         PopupMenu popupMenu = popupMenu();
         desktop.setAboutHandler(e ->
                 createAbout()
