@@ -13,11 +13,17 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class TurkishCoffee {
-    public static String imagePath = "assets/turkish.png";
+    private static final String VERSION = "0.3";
+    private static final String VERSION_STRING = "Turkish Coffee v" + VERSION;
+    final static Taskbar taskbar = Taskbar.getTaskbar();
+    public static String imagePath = "assets/turkish-coffee-passive.png";
+    public static String imagePathActive = "assets/turkish-coffee-active.png";
     public static Boolean timerStatus = false;
     public static Desktop desktop = Desktop.getDesktop();
     static Timer myTimer;
     static TimerTask timerJob;
+    static SystemTray tray = SystemTray.getSystemTray();
+    static TrayIcon icon;
 
     public static PopupMenu popupMenu() {
         PopupMenu trayPopupMenu = new PopupMenu();
@@ -30,13 +36,17 @@ public class TurkishCoffee {
                         createTimer();
                         timerStart.setLabel("Stop");
                         timerStatus = true;
-                    } catch (AWTException ex) {
+                    } catch (AWTException | IOException ex) {
                         ex.printStackTrace();
                     }
                 } else {
                     timerStatus = false;
                     timerStart.setLabel("Start");
-                    stopTimer();
+                    try {
+                        stopTimer();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         });
@@ -74,8 +84,9 @@ public class TurkishCoffee {
                 "font-size:" + font.getSize() + "pt;";
 
         JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
-                + "<strong>Turkish Coffee v0.2</strong><br/>"
+                + "<strong>"+VERSION_STRING+"</strong><br/>"
                 + "Coded by, <a href=\"https://alikarahisar.com/\">Ali Karahisar</a>"
+                + "<h6>icon by <a href=\"https://www.iconfinder.com/\">iconfinder</a></h6>"
                 + "</body></html>");
         ep.addHyperlinkListener(e1 -> {
             if (e1.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
@@ -101,13 +112,8 @@ public class TurkishCoffee {
         );
 
         if (SystemTray.isSupported()) {
-            SystemTray tray = SystemTray.getSystemTray();
-
-            TrayIcon icon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(
-                    TurkishCoffee.class.getResource(
-                            imagePath)),
-                    "Turkish Coffee", popupMenu
-            );
+            icon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(
+                    TurkishCoffee.class.getResource(imagePath)), "Turkish Coffee - Passive", popupMenu);
             icon.setImageAutoSize(true);
 
             try {
@@ -116,7 +122,6 @@ public class TurkishCoffee {
                 e.printStackTrace();
             }
         }
-        final Taskbar taskbar = Taskbar.getTaskbar();
         try {
             taskbar.setIconImage(myPicture);
             taskbar.setMenu(popupMenu);
@@ -125,26 +130,46 @@ public class TurkishCoffee {
         }
     }
 
-    private static void createTimer() throws AWTException {
+    private static void createTimer() throws AWTException, IOException {
         myTimer = new Timer();
+        isIconChanged(true);
         timerJob = new TimerTask() {
             final Robot robot = new Robot();
 
             @Override
             public void run() {
                 robot.keyPress(KeyEvent.VK_F24);
+                System.out.println("Timer is running");
             }
         };
         myTimer.schedule(timerJob, 0, 10000);
     }
 
-    private static void stopTimer() {
+    private static void stopTimer() throws IOException {
         myTimer.cancel();
         timerJob.cancel();
+        isIconChanged(false);
+        System.out.println("Timer stopped");
     }
 
     public static void main(String[] args) throws IOException {
         createGui();
+    }
+
+    public static void isIconChanged(boolean changed) throws IOException {
+        if (changed) {
+
+            taskbar.setIconImage(ImageIO.read(Objects.requireNonNull(TurkishCoffee.class.getResource(imagePathActive))));
+            tray.getTrayIcons()[0].setImage(Toolkit.getDefaultToolkit().createImage(TurkishCoffee.class.getResource(imagePathActive)));
+            icon.setToolTip("Turkish Coffee - Active");
+
+        } else {
+
+            taskbar.setIconImage(ImageIO.read(Objects.requireNonNull(TurkishCoffee.class.getResource(imagePath))));
+            tray.getTrayIcons()[0].setImage(Toolkit.getDefaultToolkit().createImage(TurkishCoffee.class.getResource(imagePath)));
+            icon.setToolTip("Turkish Coffee - Inactive");
+
+        }
     }
 
 }
