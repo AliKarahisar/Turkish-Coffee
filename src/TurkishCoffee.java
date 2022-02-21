@@ -3,6 +3,8 @@ import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
@@ -10,42 +12,40 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static java.awt.event.MouseEvent.BUTTON3;
+
 public class TurkishCoffee {
+    final static Taskbar taskbar = Taskbar.getTaskbar();
     private static final String DEFAULT_TITLE = "Turkish Coffee";
-    private static final String VERSION = "0.3";
-    private static final String VERSION_STRING = DEFAULT_TITLE+ " v" + VERSION;
+    private static final String VERSION = "0.4.0";
+    private static final String VERSION_STRING = DEFAULT_TITLE + " v" + VERSION;
     private static final String URL = "https://alikarahisar.com";
     private static final String URL_STRING = "Ali Karahisar";
-    final static Taskbar taskbar = Taskbar.getTaskbar();
     public static String imagePath = "assets/turkish-coffee-passive.png";
     public static String imagePathActive = "assets/turkish-coffee-active.png";
     public static Boolean timerStatus = false;
     public static Desktop desktop = Desktop.getDesktop();
+    public static PopupMenu trayPopupMenu = new PopupMenu();
+    public static MenuItem timerStart = new MenuItem("Start");
     static Timer myTimer;
     static TimerTask timerJob;
     static SystemTray tray = SystemTray.getSystemTray();
     static TrayIcon icon;
 
+    public static void eventListenerForPopup() throws AWTException, IOException {
+        if (!timerStatus) {
+            createTimer();
+        } else {
+            stopTimer();
+        }
+    }
+
     public static PopupMenu popupMenu() {
-        PopupMenu trayPopupMenu = new PopupMenu();
-        MenuItem timerStart = new MenuItem("Start");
         timerStart.addActionListener(e -> {
-            if (!timerStatus) {
-                try {
-                    createTimer();
-                    timerStart.setLabel("Stop");
-                    timerStatus = true;
-                } catch (AWTException | IOException ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                timerStatus = false;
-                timerStart.setLabel("Start");
-                try {
-                    stopTimer();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+            try {
+                eventListenerForPopup();
+            } catch (AWTException | IOException ex) {
+                ex.printStackTrace();
             }
         });
         trayPopupMenu.add(timerStart);
@@ -72,8 +72,8 @@ public class TurkishCoffee {
                 "font-size:" + font.getSize() + "pt;";
 
         JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
-                + "<strong>"+VERSION_STRING+"</strong><br/>"
-                + "Coded by, <a href="+URL+">"+URL_STRING+"</a>"
+                + "<strong>" + VERSION_STRING + "</strong><br/>"
+                + "Coded by, <a href=" + URL + ">" + URL_STRING + "</a>"
                 + "<h6>icon by <a href=\"https://www.iconfinder.com/\">iconfinder</a></h6>"
                 + "</body></html>");
         ep.addHyperlinkListener(e1 -> {
@@ -100,7 +100,7 @@ public class TurkishCoffee {
 
         if (SystemTray.isSupported()) {
             icon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(
-                    TurkishCoffee.class.getResource(imagePath)), DEFAULT_TITLE+" - Passive", popupMenu);
+                    TurkishCoffee.class.getResource(imagePath)), DEFAULT_TITLE + " - Passive", popupMenu);
             icon.setImageAutoSize(true);
 
             try {
@@ -112,6 +112,18 @@ public class TurkishCoffee {
         try {
             taskbar.setIconImage(myPicture);
             taskbar.setMenu(popupMenu);
+            icon.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getButton() == BUTTON3) {
+                        try {
+                            eventListenerForPopup();
+                        } catch (AWTException | IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            });
         } catch (final UnsupportedOperationException | SecurityException e) {
             e.printStackTrace();
         }
@@ -120,6 +132,8 @@ public class TurkishCoffee {
     private static void createTimer() throws AWTException, IOException {
         myTimer = new Timer();
         isIconChanged(true);
+        timerStatus = true;
+        timerStart.setLabel("Stop");
         timerJob = new TimerTask() {
             final Robot robot = new Robot();
 
@@ -135,30 +149,27 @@ public class TurkishCoffee {
         myTimer.cancel();
         timerJob.cancel();
         isIconChanged(false);
+        timerStatus = false;
+        timerStart.setLabel("Start");
+    }
+
+    public static void isIconChanged(boolean iconChange) throws IOException {
+        if (iconChange) {
+            taskbar.setIconImage(ImageIO
+                    .read(Objects.requireNonNull(TurkishCoffee.class.getResource(imagePathActive))));
+            tray.getTrayIcons()[0].setImage(Toolkit.getDefaultToolkit()
+                    .createImage(TurkishCoffee.class.getResource(imagePathActive)));
+            icon.setToolTip(DEFAULT_TITLE + " - Active");
+        } else {
+            taskbar.setIconImage(ImageIO
+                    .read(Objects.requireNonNull(TurkishCoffee.class.getResource(imagePath))));
+            tray.getTrayIcons()[0].setImage(Toolkit.getDefaultToolkit()
+                    .createImage(TurkishCoffee.class.getResource(imagePath)));
+            icon.setToolTip(DEFAULT_TITLE + " - Inactive");
+        }
     }
 
     public static void main(String[] args) throws IOException {
         createGui();
     }
-
-    public static void isIconChanged(boolean changed) throws IOException {
-        if (changed) {
-
-            taskbar.setIconImage(ImageIO
-                    .read(Objects.requireNonNull(TurkishCoffee.class.getResource(imagePathActive))));
-            tray.getTrayIcons()[0].setImage(Toolkit.getDefaultToolkit()
-                    .createImage(TurkishCoffee.class.getResource(imagePathActive)));
-            icon.setToolTip(DEFAULT_TITLE+" - Active");
-
-        } else {
-
-            taskbar.setIconImage(ImageIO
-                    .read(Objects.requireNonNull(TurkishCoffee.class.getResource(imagePath))));
-            tray.getTrayIcons()[0].setImage(Toolkit.getDefaultToolkit()
-                    .createImage(TurkishCoffee.class.getResource(imagePath)));
-            icon.setToolTip(DEFAULT_TITLE+" - Inactive");
-
-        }
-    }
-
 }
