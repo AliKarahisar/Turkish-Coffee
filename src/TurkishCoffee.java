@@ -8,16 +8,16 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Objects;
+import java.util.*;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import static java.awt.event.MouseEvent.BUTTON3;
 
 public class TurkishCoffee {
+    static ResourceBundle bundle = ResourceBundle.getBundle("i18n/AppUI");
     final static Taskbar taskbar = Taskbar.getTaskbar();
     private static final String DEFAULT_TITLE = "Turkish Coffee";
-    private static final String VERSION = "0.4.0";
+    private static final String VERSION = "0.5.0";
     private static final String VERSION_STRING = DEFAULT_TITLE + " v" + VERSION;
     private static final String URL = "https://alikarahisar.com";
     private static final String URL_STRING = "Ali Karahisar";
@@ -26,7 +26,7 @@ public class TurkishCoffee {
     public static Boolean timerStatus = false;
     public static Desktop desktop = Desktop.getDesktop();
     public static PopupMenu trayPopupMenu = new PopupMenu();
-    public static MenuItem timerStart = new MenuItem("Start");
+    public static MenuItem timerStart = new MenuItem(bundle.getString("start"));
     static Timer myTimer;
     static TimerTask timerJob;
     static SystemTray tray = SystemTray.getSystemTray();
@@ -53,11 +53,11 @@ public class TurkishCoffee {
         MenuItem seperator = new MenuItem("-");
         trayPopupMenu.add(seperator);
 
-        MenuItem about = new MenuItem("About");
+        MenuItem about = new MenuItem(bundle.getString("about"));
         about.addActionListener(e -> createAbout());
         trayPopupMenu.add(about);
 
-        MenuItem close = new MenuItem("Close");
+        MenuItem close = new MenuItem(bundle.getString("exit"));
         close.addActionListener(e -> System.exit(0));
         trayPopupMenu.add(close);
         return trayPopupMenu;
@@ -87,7 +87,7 @@ public class TurkishCoffee {
         });
         ep.setEditable(false);
         ep.setBackground(label.getBackground());
-        JOptionPane.showMessageDialog(null, ep, "About", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, ep, bundle.getString("about"), JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void createGui() throws IOException {
@@ -100,7 +100,7 @@ public class TurkishCoffee {
 
         if (SystemTray.isSupported()) {
             icon = new TrayIcon(Toolkit.getDefaultToolkit().createImage(
-                    TurkishCoffee.class.getResource(imagePath)), DEFAULT_TITLE + " - Passive", popupMenu);
+                    TurkishCoffee.class.getResource(imagePath)), DEFAULT_TITLE + " - "+bundle.getString("active"), popupMenu);
             icon.setImageAutoSize(true);
 
             try {
@@ -133,7 +133,7 @@ public class TurkishCoffee {
         myTimer = new Timer();
         isIconChanged(true);
         timerStatus = true;
-        timerStart.setLabel("Stop");
+        timerStart.setLabel(bundle.getString("stop"));
         timerJob = new TimerTask() {
             final Robot robot = new Robot();
 
@@ -150,7 +150,7 @@ public class TurkishCoffee {
         timerJob.cancel();
         isIconChanged(false);
         timerStatus = false;
-        timerStart.setLabel("Start");
+        timerStart.setLabel(bundle.getString("start"));
     }
 
     public static void isIconChanged(boolean iconChange) throws IOException {
@@ -159,13 +159,13 @@ public class TurkishCoffee {
                     .read(Objects.requireNonNull(TurkishCoffee.class.getResource(imagePathActive))));
             tray.getTrayIcons()[0].setImage(Toolkit.getDefaultToolkit()
                     .createImage(TurkishCoffee.class.getResource(imagePathActive)));
-            icon.setToolTip(DEFAULT_TITLE + " - Active");
+            icon.setToolTip(DEFAULT_TITLE + " - " + bundle.getString("active"));
         } else {
             taskbar.setIconImage(ImageIO
                     .read(Objects.requireNonNull(TurkishCoffee.class.getResource(imagePath))));
             tray.getTrayIcons()[0].setImage(Toolkit.getDefaultToolkit()
                     .createImage(TurkishCoffee.class.getResource(imagePath)));
-            icon.setToolTip(DEFAULT_TITLE + " - Inactive");
+            icon.setToolTip(DEFAULT_TITLE + " - " + bundle.getString("passive"));
         }
     }
 
