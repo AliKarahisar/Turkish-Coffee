@@ -27,7 +27,7 @@ public class TurkishCoffee {
     public static final MenuItem timerStart = new MenuItem(bundle.getString("start"));
     static final SystemTray tray = SystemTray.getSystemTray();
     private static final String DEFAULT_TITLE = "Turkish Coffee";
-    private static final String VERSION = "0.5.1";
+    private static final String VERSION = "0.5.2";
     private static final String VERSION_STRING = DEFAULT_TITLE + " v" + VERSION;
     private static final String URL = "https://alikarahisar.com";
     private static final String URL_STRING = "Ali Karahisar";
@@ -83,8 +83,8 @@ public class TurkishCoffee {
 
         JEditorPane ep = new JEditorPane("text/html", "<html><body style=\"" + style + "\">"
                 + "<strong>" + VERSION_STRING + "</strong><br/>"
-                + "Coded by, <a href=" + URL + ">" + URL_STRING + "</a>"
-                + "<h6>icon by <a href=\"https://www.iconfinder.com/\">iconfinder</a></h6>"
+                + bundle.getString("codedBy")+", <a href=" + URL + ">" + URL_STRING + "</a>"
+                + "<h6>"+bundle.getString("appIcon")+" <a href=\"https://www.iconfinder.com/\">iconfinder</a></h6>"
                 + "</body></html>");
         ep.addHyperlinkListener(e1 -> {
             if (e1.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
